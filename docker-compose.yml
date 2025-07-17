@@ -1,4 +1,24 @@
+version: '3.8'
+
 services:
+  nest-api:
+    container_name: nest-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
+    depends_on:
+      - minio
+    networks:
+      - appnet
+
   minio:
     image: quay.io/minio/minio
     container_name: minio
@@ -8,6 +28,25 @@ services:
     volumes:
       - ./minio-data:/data
     env_file:
-      - .env
+      - .env.docker
     command: server /data --console-address ":9001"
+    networks:
+      - appnet
 
+  k6:
+    image: grafana/k6
+    container_name: k6
+    volumes:
+      - ./k6-test:/mnt/k6-test
+    working_dir: /mnt/k6-test
+    entrypoint: [ "sleep", "infinity" ]
+    depends_on:
+      - nest-api
+    networks:
+      - appnet
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  appnet:
+    driver: bridge
