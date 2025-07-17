@@ -34,17 +34,15 @@ export class UploadController {
     const objectName = file.filename;
     const bucket = 'demo-bucket';
 
-    console.time(`Upload time - ${file.originalname}`);
-
-    // console.time(`Upload MinIO - ${file.originalname}`);
     await this.minioService.uploadFile(bucket, objectName, file.path);
-    // console.timeEnd(`Upload MinIO - ${file.originalname}`);
 
-    // console.time(`Xóa file local - ${file.originalname}`);
-    await fs.unlink(file.path);
-    // console.timeEnd(`Xóa file local - ${file.originalname}`);
-
-    console.timeEnd(`Upload time - ${file.originalname}`);
+    try {
+      await fs.unlink(file.path);
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        throw err;
+      }
+    }
 
     return {
       message: 'Upload thành công',
