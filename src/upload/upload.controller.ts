@@ -6,10 +6,9 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { MinioService } from 'src/minio/minio.service';
-import * as fs from 'fs/promises';
+import { extname } from 'path';
+import { Readable } from 'stream';
 
 @Controller('upload')
 export class UploadController {
@@ -18,37 +17,33 @@ export class UploadController {
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_, file, cb) => {
-          const ext = extname(file.originalname);
-          const name = `${Date.now()}${ext}`;
-          cb(null, name);
-        },
-      }),
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+      fileFilter: (_, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return cb(new BadRequestException('Chỉ được upload ảnh'), false);
+        }
+        cb(null, true);
+      },
     }),
   )
   async upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('File is required');
 
-    const objectName = file.filename;
+    const ext = extname(file.originalname);
+    const objectName = `${Date.now()}${ext}`;
     const bucket = 'demo-bucket';
 
-    await this.minioService.uploadFile(bucket, objectName, file.path);
+    const stream = Readable.from(file.buffer);
 
-    try {
-      await fs.unlink(file.path);
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        throw err;
-      }
-    }
+    await this.minioService.uploadStream(bucket, objectName, stream, file.mimetype);
 
     return {
       message: 'Upload thành công',
       file: {
         originalname: file.originalname,
-        filename: file.filename,
+        filename: objectName,
       },
     };
   }

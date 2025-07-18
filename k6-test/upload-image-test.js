@@ -4,8 +4,8 @@ import { check } from 'k6';
 const fileBin = open('./unnamed.png', 'b');
 
 export const options = {
-  vus: 10,
-  duration: '30s',
+  vus: 500,
+  duration: '3m',
 };
 
 export default function () {
