@@ -4,22 +4,27 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MinioService } from 'src/minio/minio.service';
-import { extname } from 'path';
+import { Queue } from 'bullmq';
+import { extname, join } from 'path';
+import { randomUUID } from 'crypto';
+import { createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
 import { Readable } from 'stream';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private readonly minioService: MinioService) {}
+  constructor(
+    @Inject('UPLOAD_QUEUE')
+    private readonly uploadQueue: Queue,
+  ) {}
 
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
+      limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (_, file, cb) => {
         if (!file.mimetype.startsWith('image/')) {
           return cb(new BadRequestException('Chỉ được upload ảnh'), false);
@@ -32,18 +37,25 @@ export class UploadController {
     if (!file) throw new BadRequestException('File is required');
 
     const ext = extname(file.originalname);
-    const objectName = `${Date.now()}${ext}`;
-    const bucket = 'demo-bucket';
+    const filename = `${Date.now()}-${randomUUID()}${ext}`;
+    const tempPath = join('/tmp', filename);
 
-    const stream = Readable.from(file.buffer);
+    const writeStream = createWriteStream(tempPath);
+    const readStream = Readable.from(file.buffer);
 
-    await this.minioService.uploadStream(bucket, objectName, stream, file.mimetype);
+    await pipeline(readStream, writeStream);
+
+    await this.uploadQueue.add('upload', {
+      filename,
+      tempPath,
+      mimetype: file.mimetype,
+    });
 
     return {
-      message: 'Upload thành công',
+      message: 'Đã nhận file, đang xử lý nền',
       file: {
         originalname: file.originalname,
-        filename: objectName,
+        filename,
       },
     };
   }
