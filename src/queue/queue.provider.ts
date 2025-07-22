@@ -3,7 +3,7 @@ import { RedisOptions } from 'ioredis';
 
 const connection: RedisOptions = {
   host: process.env.REDIS_HOST,
-  port: 6379,
+  port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
 };
 
 export const UploadQueue = new Queue('upload-image', { connection });
