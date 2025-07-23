@@ -26,6 +26,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@types/multer": "^2.0.0",
     "bullmq": "^5.56.4",
+    "express-rate-limit": "^8.0.1",
     "minio": "^8.0.5",
     "multer": "^2.0.1",
     "reflect-metadata": "^0.2.2",

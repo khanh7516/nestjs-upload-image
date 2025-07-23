@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  minio_local:
+    image: quay.io/minio/minio
+    container_name: minio_local
+    ports:
+      - '8999:9000'
+      - '9002:9001'
+    volumes:
+      - ./minio-data:/data
+    env_file:
+      - .env.local
+    command: server /data --console-address ":9001"
+
+  redis_local:
+    image: redis:7-alpine
+    container_name: redis_local
+    ports:
+      - '6379:6379'

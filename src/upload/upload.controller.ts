@@ -45,11 +45,23 @@ export class UploadController {
 
     await pipeline(readStream, writeStream);
 
-    await this.uploadQueue.add('upload', {
-      filename,
-      tempPath,
-      mimetype: file.mimetype,
-    });
+    await this.uploadQueue.add(
+      'upload',
+      {
+        filename,
+        tempPath,
+        mimetype: file.mimetype,
+      },
+      {
+        attempts: 5, // Retry up to 3 times on failure
+        backoff: {
+          type: 'exponential',
+          delay: 2000, // Initial delay of 2 second
+        },
+        removeOnComplete: true,
+        removeOnFail: false, // Keep failed jobs for debugging
+      },
+    );
 
     return {
       message: 'Đã nhận file, đang xử lý nền',

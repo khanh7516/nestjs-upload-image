@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   nest-api:
-    mem_limit: 1.5g
+    mem_limit: 2g
     cpus: 2.0
     container_name: nest-api
     build:
@@ -14,7 +14,6 @@ services:
       - .env.docker
     volumes:
       - .:/app
-      - /app/node_modules
     command: npm run start:dev
     depends_on:
       - minio
@@ -26,8 +25,8 @@ services:
     image: quay.io/minio/minio
     container_name: minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - ./minio-data:/data
     env_file:
@@ -40,9 +39,11 @@ services:
     image: redis:7-alpine
     container_name: redis
     ports:
-      - "6379:6379"
+      - '6380:6379'
     networks:
       - appnet
+    volumes:
+      - redis-data:/data
 
   k6:
     image: grafana/k6
@@ -50,14 +51,17 @@ services:
     volumes:
       - ./k6-test:/mnt/k6-test
     working_dir: /mnt/k6-test
-    entrypoint: [ "sleep", "infinity" ]
+    entrypoint: ['sleep', 'infinity']
     depends_on:
       - nest-api
     networks:
       - appnet
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
 
 networks:
   appnet:
     driver: bridge
+
+volumes:
+  redis-data:
