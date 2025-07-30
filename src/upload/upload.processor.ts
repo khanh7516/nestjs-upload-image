@@ -55,7 +55,7 @@ export class UploadProcessor implements OnModuleInit {
       },
       {
         connection: this.uploadQueue.opts.connection,
-        concurrency: 2,
+        concurrency: 4,
       },
     );
 

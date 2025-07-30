@@ -13,12 +13,14 @@ import { randomUUID } from 'crypto';
 import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { Readable } from 'stream';
+import { FileValidationService } from './file-validation.service';
 
 @Controller('upload')
 export class UploadController {
   constructor(
     @Inject('UPLOAD_QUEUE')
     private readonly uploadQueue: Queue,
+    private readonly fileValidationService: FileValidationService,
   ) {}
 
   @Post()
@@ -35,6 +37,8 @@ export class UploadController {
   )
   async upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('File is required');
+    
+    this.fileValidationService.validateImageFile(file);
 
     const ext = extname(file.originalname);
     const filename = `${Date.now()}-${randomUUID()}${ext}`;

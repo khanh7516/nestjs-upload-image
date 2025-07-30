@@ -1,16 +1,16 @@
 import http from 'k6/http';
 import { check } from 'k6';
 
-const fileBin = open('./image.png', 'b');
+const fileBin = open('./unnamed.png', 'b');
 
 export const options = {
-  vus: 50,
-  duration: '30s',
+  vus: 100,
+  duration: '1m',
 };
 
 export default function () {
   const data = {
-    file: http.file(fileBin, 'image.png', 'image/png'),
+    file: http.file(fileBin, 'unnamed.png', 'image/png'),
   };
 
   const res = http.post('http://nest-api:3000/upload', data);

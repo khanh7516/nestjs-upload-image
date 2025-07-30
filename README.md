@@ -43,3 +43,25 @@ Thay vì xử lý toàn bộ ảnh trong API request, hệ thống được tác
 | Monitor Queue | [Bull Board](https://github.com/felixmosh/bull-board), custom log |
 
 
+## Set up minio local
+
+```
+curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+chmod +x mc
+sudo mv mc /usr/local/bin/
+```
+
+```
+sudo apt update && sudo apt install jq
+```
+
+### Set local minio 
+```
+mc alias set local http://localhost:9000 minioadmin minioadmin123
+```
+
+### Đếm số lượng object
+
+```
+mc ls --recursive --json local/my-bucket | jq -s 'length'
+```
