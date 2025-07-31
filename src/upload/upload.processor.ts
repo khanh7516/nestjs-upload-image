@@ -35,10 +35,10 @@ export class UploadProcessor implements OnModuleInit {
         );
 
         try {
-          // const shouldFail = Math.random() < 0.8; // 80% xác suất thất bại
-          // if (shouldFail) {
-          //   throw new Error(`🔁 Giả lập lỗi tạm thời cho job ${job.id}`);
-          // }
+          const shouldFail = Math.random() < 0.9; // 90% xác suất thất bại
+          if (shouldFail) {
+            throw new Error(`🔁 Giả lập lỗi tạm thời cho job ${job.id}`);
+          }
 
           if (!existsSync(tempPath)) {
             throw new Error(`File không tồn tại: ${tempPath}`);

@@ -57,7 +57,7 @@ export class UploadController {
         mimetype: file.mimetype,
       },
       {
-        attempts: 5, // Retry up to 5 times on failure
+        attempts: 1, // Retry up to 5 times on failure
         backoff: {
           type: 'exponential',
           delay: 2000, // Initial delay of 2 second

@@ -14,7 +14,8 @@ services:
       - .env.docker
     volumes:
       - .:/app
-    command: npm run start:dev
+      - ./tmp:/tmp
+    command: sh -c "rm -rf /tmp/* && npm run start:dev"
     depends_on:
       - minio
       - redis
