@@ -7,7 +7,6 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { UploadModule } from './upload/upload.module';
 import { MinioModule } from './minio/minio.module';
-import { UploadRateLimitMiddleware } from './middleware/upload-rate-limit.middleware';
 
 @Module({
   imports: [

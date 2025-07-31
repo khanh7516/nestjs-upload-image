@@ -12,3 +12,11 @@ export const BullMQProvider = {
   provide: 'UPLOAD_QUEUE',
   useValue: UploadQueue,
 };
+
+// Queue DLQ (Dead Letter Queue)
+export const UploadDLQ = new Queue('upload-image-dlq', { connection });
+
+export const BullMQDLQProvider = {
+  provide: 'UPLOAD_DLQ',
+  useValue: UploadDLQ,
+};

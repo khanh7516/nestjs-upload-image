@@ -43,6 +43,12 @@ Thay vì xử lý toàn bộ ảnh trong API request, hệ thống được tác
 | Monitor Queue | [Bull Board](https://github.com/felixmosh/bull-board), custom log |
 
 
+### Chạy test k6
+
+```
+docker exec k6 k6 run /mnt/k6-test/upload-image-test.js
+```
+
 ## Set up minio local
 
 ```
